@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 from functions import band_struc_compute
-from functions import bandgap
+from functions import (bandgap, dos)
 
 # def band_struc_compute(a, n_bands=4):
 #     k = np.linspace(-10,10,1000)
@@ -48,7 +48,9 @@ fig = go.Figure()
 #     fig.add_trace(go.Scatter(x=k,y=E, mode="lines", name=f"Band {nlv}"))
 
 band_data = band_struc_compute(a)
+dos_data = dos(band_data)
 band_data = bandgap(band_data, V0)
+
 k = band_data["k"]
 bands = band_data["bands"]
 for i,E in enumerate(bands):
@@ -59,6 +61,12 @@ fig.add_vline(x=-brilbound,line_dash="dash", annotation_text="-pi/a")
 fig.update_layout(title="E v/s k graph indicating bands and Brillouin zone boundaries/bragg planes",
                   xaxis_title= 'k( Wave vec)',yaxis_title= "E v/s k (Wave vec)", height = 700)
 st.plotly_chart(fig)
+dos_figure = go.Figure()
+dos_figure.add_trace(go.Scatter(x=dos_data["edge centres"], y=dos_data["dos"], mode="lines"))
+dos_figure.update_layout(title="Density of States v/s Energy", xaxis_title="Energy", yaxis_title="Density of States")
+st.plotly_chart(dos_figure)
+
+
 
 st.header("Current values")
 st.write(f"Unit cell width a = {a}")

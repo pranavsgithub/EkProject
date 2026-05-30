@@ -23,3 +23,8 @@ def bandgap(band_data, V0):
         newbands.append(E_new)
     return {**band_data, "bands": newbands}
 
+def dos(band_data, bins=1000):
+    all_energies = np.concatenate(band_data["bands"])
+    dos,edges = np.histogram(all_energies,bins=bins)
+    edge_centres = (edges[1:] + edges[:-1])/2
+    return{"edge centres": edge_centres, "dos": dos}
