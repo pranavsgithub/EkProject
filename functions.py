@@ -8,4 +8,18 @@ def band_struc_compute(a, n_bands=4):
         E = 0.5*(k+n*G)**2
         bands.append(E)
 
-    return{"k":k,"G":G, "bands": bands}
+    return{"k":k,"G":G, "bands": bands, "a":a}
+
+def bandgap(band_data, V0):
+    k = band_data["k"]
+    bands = band_data["bands"]
+    gap = np.pi/band_data["a"]
+    width = 0.2
+    newbands = []
+    for E in bands:
+        E_new = E.copy()
+        mask = np.abs(np.abs(k)-gap)<width
+        E_new[mask] += V0/2
+        newbands.append(E_new)
+    return {**band_data, "bands": newbands}
+

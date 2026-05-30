@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 from functions import band_struc_compute
+from functions import bandgap
 
 # def band_struc_compute(a, n_bands=4):
 #     k = np.linspace(-10,10,1000)
@@ -46,7 +47,8 @@ fig = go.Figure()
 #     E = 0.5*(k+nlv*G)**2
 #     fig.add_trace(go.Scatter(x=k,y=E, mode="lines", name=f"Band {nlv}"))
 
-band_data = band_struc_compute(a, n_bands=2)
+band_data = band_struc_compute(a)
+band_data = bandgap(band_data, V0)
 k = band_data["k"]
 bands = band_data["bands"]
 for i,E in enumerate(bands):
