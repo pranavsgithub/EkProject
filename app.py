@@ -3,7 +3,8 @@ import numpy as np
 import plotly.graph_objects as go
 from functions import band_struc_compute
 from functions import (bandgap, dos)
-from kpsolver import (allowed_regions, band_compute)
+from kpsolver import (allowed_regions)
+from bandsolver import *
 
 # def band_struc_compute(a, n_bands=4):
 #     k = np.linspace(-10,10,1000)
@@ -85,10 +86,12 @@ st.plotly_chart(kpfig)
 band_figure = go.Figure()
 band_figure.add_trace(go.Scatter(x = new_band_data["k_all"], y=new_band_data["E_all"], mode="markers",
                                  marker=dict(size=2), name = "k" ))
-band_figure.add_trace(go.Scatter(x = new_band_data["k_dash"], y=new_band_data["energy"], mode="markers",
-                                 marker=dict(size=2), name = "k'" ))
-#band_figure.add_vline(x=brilbound, line_dash="dash", line_color="grey")
-#band_figure.add_vline(x=-brilbound, line_dash="dash", line_color="grey")
+for x in range (0,5):
+    band_figure.add_vline(x=brilbound + x*np.pi/a, line_dash="dash", line_color="grey")
+    band_figure.add_vline(x=-brilbound - x*np.pi/a , line_dash="dash", line_color="grey")
+
+
+
 band_figure.update_layout(title="Band Stucture obtained on solving Kronig-Penney equation",
                           xaxis_title = "k", yaxis_title="Energy")
 st.plotly_chart(band_figure)
