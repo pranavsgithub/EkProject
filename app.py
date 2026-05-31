@@ -19,7 +19,7 @@ st.title("Band theory simulator")
 st.write("Note: All units are currently arbitrary")
 st.write("Move the sliders to view how various parameters affect electronic structure and conductivity")
 a = st.sidebar.slider("Unit cell width, a",  1.0, 10.0, 5.0, 0.1)
-b = st.sidebar.slider("Potential barrier width, b", 0.1, 5.0, 1.0, 0.1)
+b = st.sidebar.slider("Potential barrier width, b", 0.1, a-0.1,min( 1.0, a-0.1), 0.1)
 V0 = st.sidebar.slider("Potential barrier height (V0)", 0.1, 50.0, 5.0, 0.1)
 n = st.sidebar.slider("Free electron per unit volume n", 1.0, 100.0, 50.0)
 T = st.sidebar.slider("Temperature in Kelvin", 1.0, 1000.0, 300.0)
@@ -83,18 +83,16 @@ kpfig.update_layout(title="Kronig-Penney Condition solutions", xaxis_title = "En
 st.plotly_chart(kpfig)
 
 band_figure = go.Figure()
-band_figure.add_trace(go.Scatter(x = new_band_data["k_pos"], y=new_band_data["energy"], mode="markers",
+band_figure.add_trace(go.Scatter(x = new_band_data["k_all"], y=new_band_data["E_all"], mode="markers",
                                  marker=dict(size=2), name = "k" ))
 band_figure.add_trace(go.Scatter(x = new_band_data["k_dash"], y=new_band_data["energy"], mode="markers",
                                  marker=dict(size=2), name = "k'" ))
-band_figure.add_vline(x=brilbound, line_dash="dash", line_color="grey")
-band_figure.add_vline(x=-brilbound, line_dash="dash", line_color="grey")
+#band_figure.add_vline(x=brilbound, line_dash="dash", line_color="grey")
+#band_figure.add_vline(x=-brilbound, line_dash="dash", line_color="grey")
 band_figure.update_layout(title="Band Stucture obtained on solving Kronig-Penney equation",
                           xaxis_title = "k", yaxis_title="Energy")
 st.plotly_chart(band_figure)
 
-st.write(np.max(np.abs(new_band_data["k_pos"])))
-st.write(np.pi/a)
 st.header("Current values")
 st.write(f"Unit cell width a = {a}")
 st.write(f"Potential barrier width b = {b}")
