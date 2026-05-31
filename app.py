@@ -3,6 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 from functions import band_struc_compute
 from functions import (bandgap, dos)
+from kpsolver import (allowed_regions, band_compute)
 
 # def band_struc_compute(a, n_bands=4):
 #     k = np.linspace(-10,10,1000)
@@ -19,7 +20,7 @@ st.write("Note: All units are currently arbitrary")
 st.write("Move the sliders to view how various parameters affect electronic structure and conductivity")
 a = st.sidebar.slider("Unit cell width, a",  1.0, 10.0, 5.0, 0.1)
 b = st.sidebar.slider("Potential barrier width, b", 0.1, 5.0, 1.0, 0.1)
-V0 = st.sidebar.slider("Potential barrier height (V0)", 0.1, 20.0, 5.0, 0.1)
+V0 = st.sidebar.slider("Potential barrier height (V0)", 0.1, 50.0, 5.0, 0.1)
 n = st.sidebar.slider("Free electron per unit volume n", 1.0, 100.0, 50.0)
 T = st.sidebar.slider("Temperature in Kelvin", 1.0, 1000.0, 300.0)
 
@@ -50,24 +51,50 @@ fig = go.Figure()
 band_data = band_struc_compute(a)
 dos_data = dos(band_data)
 band_data = bandgap(band_data, V0)
-
+kp_data = allowed_regions(a,b,V0)
 k = band_data["k"]
 bands = band_data["bands"]
+brilbound = np.pi / a
+
+new_band_data = band_compute(a,b,V0)
+
 for i,E in enumerate(bands):
     fig.add_trace(go.Scatter(x=k, y=E, mode="lines", name=f"Band {i}"))
-brilbound = np.pi / a
+
 fig.add_vline(x=brilbound,line_dash="dash", annotation_text="pi/a")
 fig.add_vline(x=-brilbound,line_dash="dash", annotation_text="-pi/a")
 fig.update_layout(title="E v/s k graph indicating bands and Brillouin zone boundaries/bragg planes",
                   xaxis_title= 'k( Wave vec)',yaxis_title= "E v/s k (Wave vec)", height = 700)
 st.plotly_chart(fig)
+
+
 dos_figure = go.Figure()
 dos_figure.add_trace(go.Scatter(x=dos_data["edge centres"], y=dos_data["dos"], mode="lines"))
 dos_figure.update_layout(title="Density of States v/s Energy", xaxis_title="Energy", yaxis_title="Density of States")
 st.plotly_chart(dos_figure)
 
 
+kpfig = go.Figure()
+kpfig.add_trace(go.Scatter(x = kp_data["energy"], y=kp_data["rhs"],
+                           mode="lines", name="Rhs v/s Energy for kronig-penney equation"))
+kpfig.add_hline(y=1, line_dash = "dash", line_color="grey")
+kpfig.add_hline(y=-1, line_dash = "dash", line_color="grey")
+kpfig.update_layout(title="Kronig-Penney Condition solutions", xaxis_title = "Energy", yaxis_title="rhs")
+st.plotly_chart(kpfig)
 
+band_figure = go.Figure()
+band_figure.add_trace(go.Scatter(x = new_band_data["k_pos"], y=new_band_data["energy"], mode="markers",
+                                 marker=dict(size=2), name = "k" ))
+band_figure.add_trace(go.Scatter(x = new_band_data["k_dash"], y=new_band_data["energy"], mode="markers",
+                                 marker=dict(size=2), name = "k'" ))
+band_figure.add_vline(x=brilbound, line_dash="dash", line_color="grey")
+band_figure.add_vline(x=-brilbound, line_dash="dash", line_color="grey")
+band_figure.update_layout(title="Band Stucture obtained on solving Kronig-Penney equation",
+                          xaxis_title = "k", yaxis_title="Energy")
+st.plotly_chart(band_figure)
+
+st.write(np.max(np.abs(new_band_data["k_pos"])))
+st.write(np.pi/a)
 st.header("Current values")
 st.write(f"Unit cell width a = {a}")
 st.write(f"Potential barrier width b = {b}")

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def kp_solver(E,a,b,V0):
     if E<=0 or E>= V0:
-        return np.nan
+     return np.nan
     alpha = np.sqrt(V0-E)
     beta = np.sqrt(E)
     const_term = (alpha**2 - beta**2)/(2*alpha*beta)
@@ -18,6 +18,17 @@ def allowed_regions(a,b,V0, points=5000):
     rhs = np.array([kp_solver(E,a,b,V0) for E in energies])
     allowed_bool = (np.abs(rhs)<=1)
     return{"energy": energies, "rhs": rhs, "allowed_regions": allowed_bool}
+
+def band_compute(a,b,V0, points=5000):
+    kp_data = allowed_regions(a,b,V0, points)
+    energies = kp_data["energy"]
+    rhs = kp_data["rhs"]
+    allowed = kp_data["allowed_regions"]
+    allowed_E = energies[allowed]
+    allowed_rhs = rhs[allowed]
+    k_pos = np.arccos(allowed_rhs)/a
+    k_dash = -k_pos
+    return{"k_pos": k_pos  , "k_dash": k_dash, "energy":allowed_E}
 
 def plot_kp(a,b,V0):
     data = allowed_regions(a,b,V0)
@@ -32,7 +43,7 @@ def plot_kp(a,b,V0):
     plt.title("Kronig Penney Model solutions")
     plt.xlabel("Energy")
     plt.ylabel("Rhs")
-    #plt.ylim(-2,2)
+    plt.ylim(-2,2)
     plt.xlim(0,V0)
     plt.grid(True, linestyle=":", alpha=0.6)
     plt.legend()
