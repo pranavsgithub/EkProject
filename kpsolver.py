@@ -13,7 +13,7 @@ def kp_solver(E,a,b,V0):
          np.cosh(alpha*b)*np.cos(beta*(a-b)))
     return F
 
-def allowed_regions(a,b,V0, points=5000):
+def allowed_regions(a,b,V0, points=20000):
     energies = np.linspace(1e-4,V0-1e-4,points)
     rhs = np.array([kp_solver(E,a,b,V0) for E in energies])
     allowed_bool = (np.abs(rhs)<=1)

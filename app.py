@@ -58,6 +58,22 @@ bands = band_data["bands"]
 brilbound = np.pi / a
 
 new_band_data = band_compute(a,b,V0)
+kp_dos_data = kp_dos(new_band_data)
+
+
+
+allowedEnergy = kp_data["energy"][kp_data["allowed_regions"]]
+hzontal_bands = band_seperator(allowedEnergy)
+st.write(
+    f"Number of bands found: {len(hzontal_bands)}"
+)
+for i, band in enumerate(hzontal_bands):
+    print(
+        i+1,
+        band[0],
+        band[-1],
+        len(band)
+    )
 
 for i,E in enumerate(bands):
     fig.add_trace(go.Scatter(x=k, y=E, mode="lines", name=f"Band {i}"))
@@ -86,7 +102,7 @@ st.plotly_chart(kpfig)
 band_figure = go.Figure()
 band_figure.add_trace(go.Scatter(x = new_band_data["k_all"], y=new_band_data["E_all"], mode="markers",
                                  marker=dict(size=2), name = "k" ))
-for x in range (0,5):
+for x in range (0,int(np.ceil(np.max(new_band_data["k_all"])))):
     band_figure.add_vline(x=brilbound + x*np.pi/a, line_dash="dash", line_color="grey")
     band_figure.add_vline(x=-brilbound - x*np.pi/a , line_dash="dash", line_color="grey")
 
@@ -95,6 +111,26 @@ for x in range (0,5):
 band_figure.update_layout(title="Band Stucture obtained on solving Kronig-Penney equation",
                           xaxis_title = "k", yaxis_title="Energy")
 st.plotly_chart(band_figure)
+
+kp_dos_figure = go.Figure()
+kp_dos_figure.add_trace(go.Scatter(x=kp_dos_data["energy"], y=kp_dos_data["dos"],mode="lines"))
+st.plotly_chart(kp_dos_figure)
+
+band_diag = go.Figure()
+for i, band in enumerate(hzontal_bands):
+
+    y = i + 1
+
+    band_diag.add_trace(
+        go.Scatter(
+            x=[band[0], band[-1]],
+            y=[y, y],
+            mode="lines",
+            line=dict(width=12),
+            name=f"Band {i+1}"
+        )
+    )
+st.plotly_chart(band_diag)
 
 st.header("Current values")
 st.write(f"Unit cell width a = {a}")
